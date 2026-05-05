@@ -1,5 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
+// -----------------------------
+// BUILD TREE (FIXED)
+// -----------------------------
 function buildTree(files) {
   const root = {};
 
@@ -18,6 +21,11 @@ function buildTree(files) {
           : {};
       }
 
+      // prevent file/folder conflict
+      if (!isFile && current[part].__file) {
+        current[part] = {};
+      }
+
       current = current[part];
     });
   });
@@ -25,7 +33,9 @@ function buildTree(files) {
   return root;
 }
 
-// 🔥 IMPORTANT: folders first, then files
+// -----------------------------
+// SORT (folders first)
+// -----------------------------
 function sortNodes(node) {
   const entries = Object.entries(node);
 
@@ -33,11 +43,8 @@ function sortNodes(node) {
   const files = [];
 
   for (const [key, value] of entries) {
-    if (value.__file) {
-      files.push([key, value]);
-    } else {
-      folders.push([key, value]);
-    }
+    if (value.__file) files.push([key, value]);
+    else folders.push([key, value]);
   }
 
   folders.sort((a, b) => a[0].localeCompare(b[0]));
@@ -46,26 +53,24 @@ function sortNodes(node) {
   return [...folders, ...files];
 }
 
-function formatPath(path = "") {
-  const parts = path.split("/");
-
-  if (parts.length <= 2) return path;
-
-  return parts[0] + "/.../" + parts[parts.length - 1];
-}
-
-function TreeNode({ node, name, processed }) {
+// -----------------------------
+// TREE NODE
+// -----------------------------
+function TreeNode({ node, name, processed, depth = 0 }) {
   const isFile = node.__file;
 
+  // root open, subfolders closed
+  const [open, setOpen] = useState(depth === 0);
+
+  // ---------------- FILE ----------------
   if (isFile) {
     const file = node.__file;
     const result = processed[node.__index];
-    const path = file.webkitRelativePath || file.name;
 
     return (
       <div style={styles.fileRow}>
         <span style={styles.left}>
-          📄 {formatPath(path)}
+          📄 {file.name}
         </span>
 
         <span style={styles.right}>
@@ -84,24 +89,36 @@ function TreeNode({ node, name, processed }) {
     );
   }
 
+  // ---------------- FOLDER ----------------
   return (
     <div style={styles.folder}>
-      <div style={styles.folderName}>📁 {name}</div>
-
-      <div style={styles.children}>
-        {sortNodes(node).map(([childName, childNode]) => (
-          <TreeNode
-            key={childName}
-            name={childName}
-            node={childNode}
-            processed={processed}
-          />
-        ))}
+      <div
+        style={styles.folderName}
+        onClick={() => setOpen(!open)}
+      >
+        {open ? "📂" : "📁"} {name}
       </div>
+
+      {open && (
+        <div style={styles.children}>
+          {sortNodes(node).map(([childName, childNode]) => (
+            <TreeNode
+              key={childName}
+              name={childName}
+              node={childNode}
+              processed={processed}
+              depth={depth + 1}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
+// -----------------------------
+// MAIN COMPONENT
+// -----------------------------
 export default function FileList({ files, processed }) {
   const tree = useMemo(() => buildTree(files), [files]);
 
@@ -111,20 +128,22 @@ export default function FileList({ files, processed }) {
         File Tree ({files.length})
       </h3>
 
-      <div>
-        {sortNodes(tree).map(([name, node]) => (
-          <TreeNode
-            key={name}
-            name={name}
-            node={node}
-            processed={processed}
-          />
-        ))}
-      </div>
+      {sortNodes(tree).map(([name, node]) => (
+        <TreeNode
+          key={name}
+          name={name}
+          node={node}
+          processed={processed}
+          depth={0}
+        />
+      ))}
     </div>
   );
 }
 
+// -----------------------------
+// STYLES
+// -----------------------------
 const styles = {
   container: {
     marginTop: "20px",
@@ -144,6 +163,8 @@ const styles = {
   folderName: {
     fontWeight: "bold",
     marginBottom: "4px",
+    cursor: "pointer",
+    userSelect: "none",
   },
 
   children: {

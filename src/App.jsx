@@ -37,7 +37,7 @@ export default function App() {
   const isDone =
     files.length > 0 &&
     processed.length === files.length &&
-    files.length === progress.total;
+    progress.total > 0;
 
   const totalOriginal = processed.reduce(
     (sum, f) => sum + (Number(f.originalSize) || 0),
@@ -74,8 +74,25 @@ export default function App() {
   // File handling
   // -----------------------------
   const handleFiles = (newFiles) => {
-    const uniqueFiles = newFiles.filter(
-      (f) => !files.some((existing) => existing.name === f.name)
+    // ✅ FILTER FIRST (critical fix)
+    const validFiles = newFiles.filter((file) => {
+      const isImageByType = file.type?.startsWith("image/");
+      const isImageByName =
+        /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
+
+      return isImageByType || isImageByName;
+    });
+
+    // ✅ proper dedupe (folder-safe)
+    const getId = (f) =>
+      f.webkitRelativePath || f.name;
+
+    const uniqueFiles = validFiles.filter(
+      (f) =>
+        !files.some(
+          (existing) =>
+            getId(existing) === getId(f)
+        )
     );
 
     const updated = [...files, ...uniqueFiles];
@@ -86,11 +103,19 @@ export default function App() {
 
   const processFiles = async (filesToProcess) => {
     const pool = poolRef.current;
-    if (!pool) return;
+
+    // keep ONLY valid files here too (safety layer)
+    const validFiles = filesToProcess.filter((file) => {
+      const isImageByType = file.type?.startsWith("image/");
+      const isImageByName =
+        /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
+
+      return isImageByType || isImageByName;
+    });
+
+    const total = validFiles.length;
 
     setStartTime(Date.now());
-
-    const total = filesToProcess.length;
 
     setProgress({
       current: 0,
@@ -100,8 +125,8 @@ export default function App() {
 
     const results = [];
 
-    for (let i = 0; i < filesToProcess.length; i++) {
-      const file = filesToProcess[i];
+    for (let i = 0; i < validFiles.length; i++) {
+      const file = validFiles[i];
 
       setProgress({
         current: i,
@@ -109,19 +134,21 @@ export default function App() {
         fileName: file.webkitRelativePath || file.name,
       });
 
-      const result = await pool.addTask(file, 0.75);
+      try {
+        const result = await pool.addTask(file, 0.75);
 
-      results.push({
-        name: file.name,
-        path: file.webkitRelativePath,
+        results.push({
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          blob: result.blob,
+          originalSize: file.size,
+          newSize: result.size,
+        });
 
-        blob: result.blob,
-
-        originalSize: file.size,
-        newSize: result.newSize ?? result.size ?? result.originalSize ?? 0,
-      });
-
-      setProcessed([...results]);
+        setProcessed([...results]);
+      } catch (err) {
+        console.error("Failed file:", file.name, err);
+      }
     }
 
     setProgress({
@@ -136,11 +163,11 @@ export default function App() {
   // -----------------------------
   return (
     <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Image Optimizer</h1><br/>
+      <h1>Image Optimizer</h1>
+      <br />
 
       <Dropzone onFiles={handleFiles} />
 
-      {/* BIG STATS ONLY WHEN DONE */}
       {isDone && <BigStat savedPercent={savedPercent} />}
 
       <ProgressBar progress={progress} />
@@ -152,16 +179,16 @@ export default function App() {
       <FileList files={files} processed={processed} />
 
       <a
-  href="/privacy"
-  style={{
-    fontSize: 12,
-    color: "gray",
-    marginTop: 20,
-    display: "inline-block"
-  }}
->
-  Privacy Policy
-</a>
+        href="/privacy"
+        style={{
+          fontSize: 12,
+          color: "gray",
+          marginTop: 20,
+          display: "inline-block",
+        }}
+      >
+        Privacy Policy
+      </a>
     </div>
   );
 }
