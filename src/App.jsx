@@ -24,7 +24,7 @@ export default function App() {
   // Worker Pool init
   // -----------------------------
   useEffect(() => {
-    poolRef.current = new WorkerPool("../workers/imageWorker.js", 4);
+    poolRef.current = new WorkerPool(4);
 
     return () => {
       poolRef.current?.terminate();

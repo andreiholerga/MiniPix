@@ -1,25 +1,20 @@
+import ImageWorker from "../workers/imageWorker.js?worker";
+
 export class WorkerPool {
-  constructor(workerPath, size = 4) {
+  constructor(size = 4) {
     this.size = size;
 
     this.queue = [];
     this.idleWorkers = [];
-    this.workers = [];
-
     this.tasks = new Map();
     this.taskId = 0;
 
-    this.isProcessing = false; // ✅ IMPORTANT FIX
+    this.workers = [];
 
     for (let i = 0; i < size; i++) {
-      const worker = new Worker(
-        new URL(workerPath, import.meta.url),
-        { type: "module" }
-      );
-
+      const worker = new ImageWorker();
 
       worker.onmessage = (e) => {
-        console.log("POOL RECEIVED:", e.data);
         const { id, result, error } = e.data;
 
         const task = this.tasks.get(id);
@@ -31,8 +26,6 @@ export class WorkerPool {
         else task.resolve(result);
 
         this.idleWorkers.push(worker);
-
-        // re-trigger safely
         this.processQueue();
       };
 
@@ -57,35 +50,19 @@ export class WorkerPool {
   }
 
   processQueue() {
-    // ✅ guard prevents re-entrant crashes
-    if (this.isProcessing) return;
+    while (this.queue.length > 0 && this.idleWorkers.length > 0) {
+      const worker = this.idleWorkers.shift();
+      const task = this.queue.shift();
 
-    this.isProcessing = true;
-
-    try {
-      while (this.queue.length > 0 && this.idleWorkers.length > 0) {
-        const worker = this.idleWorkers.shift();
-        const task = this.queue.shift();
-
-        if (!task) continue;
-
-        worker.postMessage({
-          id: task.id,
-          file: task.file,
-          quality: task.quality,
-        });
-      }
-    } finally {
-      this.isProcessing = false;
+      worker.postMessage({
+        id: task.id,
+        file: task.file,
+        quality: task.quality,
+      });
     }
   }
-  
 
   terminate() {
     this.workers.forEach((w) => w.terminate());
-    this.workers = [];
-    this.idleWorkers = [];
-    this.queue = [];
-    this.tasks.clear();
   }
 }
