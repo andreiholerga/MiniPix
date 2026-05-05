@@ -150,6 +150,18 @@ export default function App() {
       <ExportButton processed={processed} files={files} />
 
       <FileList files={files} processed={processed} />
+
+      <a
+  href="/privacy"
+  style={{
+    fontSize: 12,
+    color: "gray",
+    marginTop: 20,
+    display: "inline-block"
+  }}
+>
+  Privacy Policy
+</a>
     </div>
   );
 }
