@@ -21,22 +21,19 @@ export default function Onboarding() {
   return (
     <div className="onboarding">
       <div className="onboarding-content">
-
         <div>
-          <div className="onboarding-title">
-            👋 Welcome to Web Image Optimizer
-          </div>
+          <div className="onboarding-title">👋 Welcome to ZipPix</div>
 
           <div className="onboarding-text">
-            Drop images or folders, adjust quality, and download optimized results.
-            Everything runs locally in your browser — nothing is uploaded.
+            Drop images or folders, adjust quality, and download optimized
+            results. Everything runs locally in your browser — nothing is
+            uploaded.
           </div>
         </div>
 
         <button className="onboarding-btn" onClick={close}>
           Got it
         </button>
-
       </div>
     </div>
   );

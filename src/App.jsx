@@ -10,12 +10,13 @@ import QualityControl from "./components/QualityControl";
 import About from "./components/About";
 import Onboarding from "./components/Onboarding";
 import ThemeToggle from "./components/ThemeToggle";
+import DonateButton from "./components/DonateButton";
 
 export default function App() {
   const [files, setFiles] = useState([]);
   const [processed, setProcessed] = useState([]);
   const [startTime, setStartTime] = useState(null);
-  const [quality, setQuality] = useState(0.75);
+  const [quality, setQuality] = useState(0.7);
 
   const poolRef = useRef(null);
 
@@ -142,55 +143,61 @@ export default function App() {
       fileName: "",
     });
   };
-  
 
   // UI
- return (
-   <div className="app">
-    <div className="container">
+  return (
+    <div className="app">
+      <div className="container">
+        <Onboarding />
+        <img
+  src="/zippix-dark.png"
+  alt="ZipPix"
+  className="logo"
+/>
 
-      <Onboarding />
+<p className="subtitle">
+  Fast WebP image optimizer for the web
+</p>
+        <ThemeToggle />
+        {/* HERO SECTION */}
+        <div className="panel hero">
+          <QualityControl value={quality} onChange={setQuality} />
+          <Dropzone onFiles={handleFiles} />
+          <div className="hint">
+            *All images are converted to WebP for optimal web performance
+          </div>
 
-      <h1 className="title">Web Image Optimizer</h1>
-      <ThemeToggle />
+          <ProgressBar progress={progress} />
 
-      {/* HERO SECTION */}
-      <div className="panel hero">
-
-        <QualityControl value={quality} onChange={setQuality} />
-
-        <Dropzone onFiles={handleFiles} />
-
-        <ProgressBar progress={progress} />
-
-        <TimeLeft seconds={timeLeft} />
-
-      </div>
-
-      {/* RESULTS SECTION */}
-      {isDone && (
-        <div className="panel results">
-          <BigStat savedPercent={savedPercent} />
-
-          <ExportButton
-            processed={processed}
-            files={files}
-          />
+          <TimeLeft seconds={timeLeft} />
         </div>
-      )}
+        {/* RESULTS SECTION */}
+        {isDone && (
+          <div className="panel results">
+            <BigStat savedPercent={savedPercent} />
 
-      {/* FILES SECTION */}
-      <div className="panel">
-        <FileList files={files} processed={processed} />
+            <ExportButton processed={processed} files={files} />
+
+            <div className="donate-note">
+              This tool is free and runs entirely in your browser.
+            </div>
+            <DonateButton />
+          </div>
+        )}
+        {/* FILES SECTION */}
+        {progress.current != 0 && (
+          <div className="panel">
+            <FileList files={files} processed={processed} />
+          </div>
+        )}
+        <About />
+        <a href="/privacy" className="link">
+          Privacy Policy
+        </a>
+        <br />
+        <br />
+        &#169;Andrei Holerga 2026
       </div>
-
-      <About />
-
-      <a href="/privacy" className="link">
-        Privacy Policy
-      </a><br/><br/>
-      &#169;Andrei Holerga 2026
     </div>
-  </div>
-);
+  );
 }

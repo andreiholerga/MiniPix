@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export default function QualityControl({ value, onChange }) {
-  const [quality, setQuality] = useState(value || 0.75);
+  const [quality, setQuality] = useState(value ?? 0.7);
 
   useEffect(() => {
     onChange?.(quality);

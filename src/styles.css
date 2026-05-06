@@ -12,7 +12,7 @@
   --border-strong: rgba(255, 255, 255, 0.16);
 
   /* ---------- TEXT ---------- */
-  --text: #f3f2ee;        /* warm white */
+  --text: #f3f2ee; /* warm white */
   --muted: #a1a09a;
   --muted-2: #7a7872;
   --muted-3: #5c5a55;
@@ -55,8 +55,8 @@
   --muted-2: #6d6d6a;
   --muted-3: #80807d;
 
-  --primary: #0e682f;        /* slightly deeper for contrast */
-  --primary-dark: #15b550;
+  --primary: #5cc46a; /* slightly deeper for contrast */
+  --primary-dark: #62b46d;
 
   --accent-purple: #7c3aed;
   --accent-orange: #d97706;
@@ -97,8 +97,8 @@ body {
 /* ---------- TITLE ---------- */
 
 .title {
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 36px;
+  font-weight: 800;
   margin-bottom: 18px;
   letter-spacing: -0.5px;
 }
@@ -146,7 +146,6 @@ body {
 .link:hover {
   color: #aaa;
 }
-
 
 /* ---------- FILE TREE ---------- */
 .file-row {
@@ -200,7 +199,8 @@ body {
 .quality-header {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .quality-value {
@@ -341,12 +341,12 @@ body {
 /* ---------- FILELIST ---------- */
 
 .filelist {
-    margin-bottom: 20px;
+  margin-bottom: 20px;
   font-size: 13px;
 }
 
 .filelist-title {
-  margin-bottom: 10px;
+  margin-bottom: 18px;
 }
 
 /* ---------- FOLDER ---------- */
@@ -449,8 +449,8 @@ body {
 /* ---------- STAT CARD ---------- */
 
 .stat-card {
-    text-align: center;
-    margin-top: 10px;
+  text-align: center;
+  margin-top: 10px;
   margin-bottom: 15px;
   padding: 14px 18px;
   background: var(--panel);
@@ -536,91 +536,75 @@ body {
   transition: width 0.25s ease;
 }
 
-
-
-/* ---------- ABOUT PANEL ---------- */
+/* ---------- ABOUT ---------- */
 
 .about {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-
-  backdrop-filter: blur(10px);
-
   display: flex;
   flex-direction: column;
-  gap: 14px;
-
-  transition: all 0.2s ease;
+  gap: 10px; /* ↓ smaller base spacing */
 }
 
-.about:hover {
-  border-color: var(--border-soft);
-  box-shadow: var(--glow);
+/* reset default heading margins */
+.about-title,
+.about-subtitle {
+  margin: 0;
 }
 
-/* ---------- TITLE ---------- */
-
+/* title */
 .about-title {
-  font-size: 14px;
+  font-size: 18px;
+  margin: 10px 0px;
   font-weight: 600;
-  color: var(--text);
-  letter-spacing: -0.2px;
 }
 
-/* ---------- DESCRIPTION ---------- */
+/* subtitle */
+.about-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 8px; /* controlled spacing */
+}
 
+/* text */
 .about-text {
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.5;
   color: var(--muted);
-  max-width: 80%;
+  max-width: 650px;
+  margin: 0; /* 🔥 important */
 }
 
-/* ---------- GRID ---------- */
+/* highlight */
+.about-highlight {
+  margin: 4px 0; /* tighter than before */
+  padding: 10px 12px;
 
-.about-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 6px;
+  border-radius: var(--radius);
+  background: rgba(126, 231, 135, 0.08);
+  border: 1px solid rgba(126, 231, 135, 0.2);
+
+  font-size: 12px;
 }
 
-/* ---------- ITEM ---------- */
+/* footer */
+.about-footer {
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: var(--muted-2);
+}
 
-.about-label {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted-3);
+/* list */
+.about-list {
+  padding-left: 18px;
+  margin: 0;
+}
+
+.about-list li {
+  font-size: 12px;
+  color: var(--muted);
   margin-bottom: 4px;
 }
-
-.about-value {
-  font-size: 12px;
-  color: var(--text);
-  font-weight: 500;
-}
-
-/* ---------- ACCENT HIGHLIGHT (optional upgrade) ---------- */
-
-.about-value strong {
-  color: var(--primary);
-}
-
-/* ---------- RESPONSIVE ---------- */
-
-@media (max-width: 700px) {
-  .about-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .about-text {
-    max-width: 100%;
-  }
-}
-
 
 /* ---------- ONBOARDING ---------- */
 
@@ -699,4 +683,149 @@ body {
 .theme-toggle:hover {
   border-color: var(--primary);
   color: var(--primary);
+}
+
+/* ---------- DONATE BUTTON ---------- */
+
+.donate-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+
+  border: 1px solid var(--border);
+  background: var(--panel);
+
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.donate-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* optional highlight style */
+.donate-btn.primary {
+  background: var(--primary);
+  color: #000;
+  border: none;
+}
+
+.donate-btn.primary:hover {
+  box-shadow: var(--glow);
+}
+
+.donate-note {
+  font-size: 11px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 6px;
+}
+
+/* ---------- PRIVACY ---------- */
+
+.privacy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* back link */
+.privacy-back {
+  align-self: flex-start;
+  margin-bottom: 12px;
+
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+
+  transition: color 0.2s ease;
+}
+
+.privacy-back:hover {
+  color: var(--primary);
+}
+
+/* panel */
+.privacy-panel {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* title */
+.privacy-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+/* date */
+.privacy-date {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* sections */
+.privacy-section {
+  margin-bottom: 16px;
+}
+
+.privacy-section h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.privacy-section p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* contact */
+.privacy-contact {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.subtitle {
+  font-size: 20px;
+  color: var(--muted);
+  margin-top: -8px;
+  margin-bottom: 16px;
+  max-width: 500px;
+}
+
+.hint {
+    text-align: right;
+  font-size: 11px;
+  color: var(--muted-2);
+  margin-top:-16px;
+}
+
+.logo {
+    content: url("/zippix-dark.png");
+  width: 200px;
+  max-width: 50%;
+  height: auto;
+
+  display: block;
+  margin: -36px 0;
+
+  transition: transform 0.2s ease;
+}
+
+.light .logo {
+  content: url("/zippix-light.png");
+}
+
+.logo:hover {
+  transform: scale(1.02);
 }

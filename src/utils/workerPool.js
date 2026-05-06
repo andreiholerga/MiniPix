@@ -42,7 +42,7 @@ export class WorkerPool {
     }
   }
 
-  addTask(file, quality = 0.75) {
+  addTask(file, quality = 0.7) {
     return new Promise((resolve, reject) => {
       const id = this.taskId++;
 

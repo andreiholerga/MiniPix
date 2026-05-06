@@ -3,16 +3,29 @@ import { useEffect, useState } from "react";
 export default function ThemeToggle() {
   const [theme, setTheme] = useState("dark");
 
+  // load once
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    if (saved) setTheme(saved);
+
+    if (saved) {
+      setTheme(saved);
+    } else {
+      const prefersLight = window.matchMedia(
+        "(prefers-color-scheme: light)"
+      ).matches;
+
+      setTheme(prefersLight ? "light" : "dark");
+    }
   }, []);
 
+  // apply globally
   useEffect(() => {
+    const root = document.documentElement;
+
     if (theme === "light") {
-      document.documentElement.classList.add("light");
+      root.classList.add("light");
     } else {
-      document.documentElement.classList.remove("light");
+      root.classList.remove("light");
     }
 
     localStorage.setItem("theme", theme);
