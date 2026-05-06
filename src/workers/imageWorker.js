@@ -43,7 +43,7 @@ self.onmessage = async (e) => {
     // -----------------------------
      const targetBytes = (options.targetSize || 300) * 1024;
 
-    // 🚨 IMPORTANT: if target is bigger than original → skip processing
+    // skip processing if target > file size
     if (targetBytes >= file.size) {
       self.postMessage({
         id,

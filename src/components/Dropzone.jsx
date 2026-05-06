@@ -53,7 +53,7 @@ export default function Dropzone({ onFiles }) {
       {/* ================= BUTTONS ================= */}
       <div className="dropzone-actions">
 
-        {/* 📁 FOLDER */}
+        {/* FOLDER */}
         <button
           onClick={() => folderInputRef.current?.click()}
           className="dropzone-btn"
