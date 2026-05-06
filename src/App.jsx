@@ -11,6 +11,7 @@ import About from "./components/About";
 import Onboarding from "./components/Onboarding";
 import ThemeToggle from "./components/ThemeToggle";
 import DonateButton from "./components/DonateButton";
+import CompressionControls from "./components/CompressionControls";
 
 export default function App() {
   const [files, setFiles] = useState([]);
@@ -19,6 +20,8 @@ export default function App() {
   const [quality, setQuality] = useState(0.7);
 
   const poolRef = useRef(null);
+  const [mode, setMode] = useState("quality"); // "quality" | "target"
+  const [targetSize, setTargetSize] = useState(300); // KB
 
   const [progress, setProgress] = useState({
     current: 0,
@@ -121,7 +124,11 @@ export default function App() {
       });
 
       try {
-        const result = await pool.addTask(file, quality);
+        const result = await pool.addTask(file, {
+          mode,
+          quality,
+          targetSize,
+        });
 
         results.push({
           name: file.name,
@@ -154,7 +161,14 @@ export default function App() {
         <ThemeToggle />
         {/* HERO SECTION */}
         <div className="panel hero">
-          <QualityControl value={quality} onChange={setQuality} />
+          <CompressionControls
+            mode={mode}
+            setMode={setMode}
+            quality={quality}
+            setQuality={setQuality}
+            targetSize={targetSize}
+            setTargetSize={setTargetSize}
+          />
           <Dropzone onFiles={handleFiles} />
           <div className="hint">
             *All images are converted to WebP for optimal web performance

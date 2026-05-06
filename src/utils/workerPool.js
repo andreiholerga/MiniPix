@@ -10,7 +10,7 @@ export class WorkerPool {
     this.taskId = 0;
 
     this.workers = [];
-    this.processing = false; // 🧠 prevents re-entrant loops
+    this.processing = false;
 
     for (let i = 0; i < size; i++) {
       const worker = new ImageWorker();
@@ -26,10 +26,7 @@ export class WorkerPool {
         if (error) task.reject(error);
         else task.resolve(result);
 
-        // return worker to pool
         this.idleWorkers.push(worker);
-
-        // schedule next batch safely
         this.processQueue();
       };
 
@@ -42,11 +39,11 @@ export class WorkerPool {
     }
   }
 
-  addTask(file, quality = 0.7) {
+  addTask(file, options = {}) {
     return new Promise((resolve, reject) => {
       const id = this.taskId++;
 
-      this.queue.push({ id, file, quality });
+      this.queue.push({ id, file, options });
       this.tasks.set(id, { resolve, reject });
 
       this.processQueue();
@@ -54,9 +51,7 @@ export class WorkerPool {
   }
 
   processQueue() {
-    // 🧠 prevent recursive scheduling storms
     if (this.processing) return;
-
     this.processing = true;
 
     while (this.queue.length > 0 && this.idleWorkers.length > 0) {
@@ -66,7 +61,7 @@ export class WorkerPool {
       worker.postMessage({
         id: task.id,
         file: task.file,
-        quality: task.quality,
+        options: task.options,
       });
     }
 
@@ -75,7 +70,6 @@ export class WorkerPool {
 
   terminate() {
     this.workers.forEach((w) => w.terminate());
-
     this.queue = [];
     this.tasks.clear();
     this.idleWorkers = [];

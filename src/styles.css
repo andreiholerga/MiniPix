@@ -188,105 +188,173 @@ body {
   font-weight: 500;
 }
 
-/* ---------- QUALITY ---------- */
+/* =========================
+   COMPRESSION CONTROL PANEL
+   ========================= */
 
 .quality {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
+/* header row */
 .quality-header {
   display: flex;
   justify-content: space-between;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 13px;
+  color: var(--muted-3);
+  letter-spacing: 0.3px;
 }
 
-.quality-value {
-  color: var(--primary);
-  font-weight: 600;
+/* =========================
+   MODE SELECTOR
+   ========================= */
+
+select.button {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+
+  color: var(--text);
+  font-size: 13px;
+
+  outline: none;
+  cursor: pointer;
+
+  transition: all 0.2s ease;
 }
+
+select.button:hover {
+  border-color: var(--border-soft);
+}
+
+select.button:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+}
+
+/* =========================
+   TARGET INPUT
+   ========================= */
+
+.quality input[type="number"] {
+  width: 100%;
+  padding: 10px 12px;
+
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  background: var(--panel-2);
+  color: var(--text);
+
+  font-size: 13px;
+
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.quality input[type="number"]:hover {
+  border-color: var(--border-soft);
+}
+
+.quality input[type="number"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
+}
+
+/* =========================
+   QUALITY SLIDER (refined)
+   ========================= */
 
 .quality-slider {
   width: 100%;
-  cursor: pointer;
-  appearance: none;
   height: 6px;
-  border-radius: 999px;
-  background: var(--panel-2);
-  outline: none;
-  position: relative;
-}
 
-/* track fill (WebKit) */
-.quality-slider::-webkit-slider-runnable-track {
-  height: 6px;
   border-radius: 999px;
+  appearance: none;
+
   background: linear-gradient(
     90deg,
     var(--primary) var(--value, 70%),
-    var(--panel-2) var(--value, 70%)
+    var(--border) var(--value, 70%)
   );
+
+  outline: none;
+  cursor: pointer;
 }
 
 /* thumb */
 .quality-slider::-webkit-slider-thumb {
   appearance: none;
+
   width: 14px;
   height: 14px;
-  background: var(--primary);
+
   border-radius: 50%;
-  cursor: pointer;
-  border: none;
-  margin-top: -4px;
-  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.15);
+  background: var(--primary);
+
+  border: 2px solid var(--panel);
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
+
   transition: transform 0.15s ease;
 }
 
 .quality-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
+
+/* =========================
+   PRESETS (more modern)
+   ========================= */
 
 .quality-presets {
-  display: flex;
-  gap: 0;
-  border: 1px solid #222;
-  border-radius: 10px;
-  overflow: hidden;
-  background: var(--panel-2);
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
 }
 
-/* each button becomes a segment */
 .preset-btn {
-  flex: 1;
   padding: 8px 10px;
-  background: transparent;
-  border: none;
-  color: var(--muted-3);
+
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  background: var(--panel-2);
+  color: var(--muted-2);
+
   font-size: 12px;
   cursor: pointer;
+
   transition: all 0.15s ease;
 }
 
-/* divider effect */
-.preset-btn:not(:last-child) {
-  border-right: 1px solid #1f1f1f;
-}
-
-/* hover */
 .preset-btn:hover {
-  background: #151515;
-  color: #ccc;
+  border-color: var(--border-soft);
+  color: var(--text);
+  transform: translateY(-1px);
 }
 
-/* active */
 .preset-btn.active {
   background: var(--primary);
   color: #000;
+  border-color: var(--primary);
+
   font-weight: 600;
 }
 
+/* =========================
+   SMALL HELPER TEXT
+   ========================= */
+
+.quality-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: -6px;
+}
 /* ---------- EXPORT ---------- */
 
 .export {

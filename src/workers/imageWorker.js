@@ -1,5 +1,5 @@
 self.onmessage = async (e) => {
-  const { id, file, quality } = e.data;
+  const { id, file, options } = e.data;
 
   try {
     if (!file || !file.type?.startsWith("image/")) {
@@ -14,46 +14,83 @@ self.onmessage = async (e) => {
 
     ctx.drawImage(bitmap, 0, 0);
 
-    const safeQuality = Math.max(0.1, Math.min(quality, 0.8));
+    const mode = options?.mode || "quality";
 
-    const blob = await canvas.convertToBlob({
-      type: "image/webp",
-      quality: safeQuality,
-    });
+    // -----------------------------
+    // QUALITY MODE
+    // -----------------------------
+    if (mode === "quality") {
+      const quality = Math.max(0.1, Math.min(options.quality ?? 0.7, 0.9));
 
-    // 🔥 KEY PART
-    const isWebp = file.type === "image/webp";
+      const blob = await canvas.convertToBlob({
+        type: "image/webp",
+        quality,
+      });
 
-    let finalBlob = blob;
-    let finalSize = blob.size;
-    let usedOriginal = false;
+      self.postMessage({
+        id,
+        result: {
+          blob,
+          size: blob.size,
+        },
+      });
 
-    if (blob.size >= file.size) {
-      // ❌ worse result
-      if (isWebp) {
-        // NEVER upscale webp
-        finalBlob = file;
-        finalSize = file.size;
-        usedOriginal = true;
+      return;
+    }
+
+    // -----------------------------
+    // TARGET SIZE MODE
+    // -----------------------------
+     const targetBytes = (options.targetSize || 300) * 1024;
+
+    // 🚨 IMPORTANT: if target is bigger than original → skip processing
+    if (targetBytes >= file.size) {
+      self.postMessage({
+        id,
+        result: {
+          blob: file,
+          size: file.size,
+          skipped: true,
+        },
+      });
+      return;
+    }
+
+    let minQ = 0.1;
+    let maxQ = 0.95;
+
+    let bestBlob = null;
+    let bestSize = Infinity;
+
+    // binary search
+    for (let i = 0; i < 8; i++) {
+      const q = (minQ + maxQ) / 2;
+
+      const blob = await canvas.convertToBlob({
+        type: "image/webp",
+        quality: q,
+      });
+
+      const size = blob.size;
+
+      if (Math.abs(size - targetBytes) < Math.abs(bestSize - targetBytes)) {
+        bestBlob = blob;
+        bestSize = size;
+      }
+
+      // adjust search range
+      if (size > targetBytes) {
+        maxQ = q;
       } else {
-        // OPTIONAL: you can choose behavior here
-
-        // 👉 OPTION A (recommended): NEVER allow bigger files
-        finalBlob = file;
-        finalSize = file.size;
-        usedOriginal = true;
-
-        // 👉 OPTION B (if you insist):
-        // allow conversion anyway (comment above block)
+        minQ = q;
       }
     }
 
     self.postMessage({
       id,
       result: {
-        blob: finalBlob,
-        size: finalSize,
-        usedOriginal, // 👈 useful for UI
+        blob: bestBlob,
+        size: bestSize,
       },
     });
   } catch (err) {
