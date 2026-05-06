@@ -149,15 +149,8 @@ export default function App() {
     <div className="app">
       <div className="container">
         <Onboarding />
-        <img
-  src="/zippix-dark.png"
-  alt="ZipPix"
-  className="logo"
-/>
-
-<p className="subtitle">
-  Fast WebP image optimizer for the web
-</p>
+        <img src="/minipix-dark.png" alt="MiniPix" className="logo" />
+        <p className="subtitle">Fast WebP image optimizer for the web</p>
         <ThemeToggle />
         {/* HERO SECTION */}
         <div className="panel hero">

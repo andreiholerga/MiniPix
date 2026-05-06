@@ -22,7 +22,7 @@ export default function Onboarding() {
     <div className="onboarding">
       <div className="onboarding-content">
         <div>
-          <div className="onboarding-title">👋 Welcome to ZipPix</div>
+          <div className="onboarding-title">👋 Welcome to MiniPix</div>
 
           <div className="onboarding-text">
             Drop images or folders, adjust quality, and download optimized

@@ -811,19 +811,19 @@ body {
 }
 
 .logo {
-    content: url("/zippix-dark.png");
+    content: url("/minipix-dark.png");
   width: 200px;
   max-width: 50%;
   height: auto;
 
   display: block;
-  margin: -36px 0;
+  margin: -52px 0 -36px 0;
 
   transition: transform 0.2s ease;
 }
 
 .light .logo {
-  content: url("/zippix-light.png");
+  content: url("/minipix-light.png");
 }
 
 .logo:hover {
