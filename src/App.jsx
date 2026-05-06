@@ -6,11 +6,16 @@ import { WorkerPool } from "./utils/workerPool";
 import ProgressBar from "./components/ProgressBar";
 import BigStat from "./components/BigStat";
 import TimeLeft from "./components/TimeLeft";
+import QualityControl from "./components/QualityControl";
+import About from "./components/About";
+import Onboarding from "./components/Onboarding";
+import ThemeToggle from "./components/ThemeToggle";
 
 export default function App() {
   const [files, setFiles] = useState([]);
   const [processed, setProcessed] = useState([]);
   const [startTime, setStartTime] = useState(null);
+  const [quality, setQuality] = useState(0.75);
 
   const poolRef = useRef(null);
 
@@ -20,9 +25,7 @@ export default function App() {
     fileName: "",
   });
 
-  // -----------------------------
-  // Worker Pool init
-  // -----------------------------
+  // Init worker pool
   useEffect(() => {
     poolRef.current = new WorkerPool(4);
 
@@ -31,32 +34,26 @@ export default function App() {
     };
   }, []);
 
-  // -----------------------------
-  // Derived state
-  // -----------------------------
   const isDone =
-    files.length > 0 &&
-    processed.length === files.length &&
-    progress.total > 0;
+    files.length > 0 && processed.length === files.length && progress.total > 0;
 
   const totalOriginal = processed.reduce(
     (sum, f) => sum + (Number(f.originalSize) || 0),
-    0
+    0,
   );
 
   const totalNew = processed.reduce(
     (sum, f) => sum + (Number(f.newSize) || 0),
-    0
+    0,
   );
 
   const savedPercent =
-    totalOriginal > 0
+    totalOriginal - totalNew > 0
       ? Math.round(100 - (totalNew / totalOriginal) * 100)
       : 0;
 
-  // -----------------------------
-  // Time left calc
-  // -----------------------------
+  // timeleft calculation
+
   let timeLeft = null;
 
   if (startTime && progress.current > 0) {
@@ -64,35 +61,24 @@ export default function App() {
     const avgPerFile = elapsed / progress.current;
     const remaining = progress.total - progress.current;
 
-    timeLeft = Math.max(
-      0,
-      Math.round((avgPerFile * remaining) / 1000)
-    );
+    timeLeft = Math.max(0, Math.round((avgPerFile * remaining) / 1000));
   }
 
-  // -----------------------------
-  // File handling
-  // -----------------------------
+  // file handling
   const handleFiles = (newFiles) => {
-    // ✅ FILTER FIRST (critical fix)
+    // filter non image files
     const validFiles = newFiles.filter((file) => {
       const isImageByType = file.type?.startsWith("image/");
-      const isImageByName =
-        /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
+      const isImageByName = /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
 
       return isImageByType || isImageByName;
     });
 
-    // ✅ proper dedupe (folder-safe)
-    const getId = (f) =>
-      f.webkitRelativePath || f.name;
+    // setting file id
+    const getId = (f) => f.webkitRelativePath || f.name;
 
     const uniqueFiles = validFiles.filter(
-      (f) =>
-        !files.some(
-          (existing) =>
-            getId(existing) === getId(f)
-        )
+      (f) => !files.some((existing) => getId(existing) === getId(f)),
     );
 
     const updated = [...files, ...uniqueFiles];
@@ -104,11 +90,10 @@ export default function App() {
   const processFiles = async (filesToProcess) => {
     const pool = poolRef.current;
 
-    // keep ONLY valid files here too (safety layer)
+    // another filter for safety
     const validFiles = filesToProcess.filter((file) => {
       const isImageByType = file.type?.startsWith("image/");
-      const isImageByName =
-        /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
+      const isImageByName = /\.(jpg|jpeg|png|webp|avif|gif)$/i.test(file.name);
 
       return isImageByType || isImageByName;
     });
@@ -135,7 +120,7 @@ export default function App() {
       });
 
       try {
-        const result = await pool.addTask(file, 0.75);
+        const result = await pool.addTask(file, quality);
 
         results.push({
           name: file.name,
@@ -157,45 +142,55 @@ export default function App() {
       fileName: "",
     });
   };
+  
 
-  // -----------------------------
   // UI
-  // -----------------------------
-  return (
-    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>Image Optimizer</h1>
-      <br />
+ return (
+   <div className="app">
+    <div className="container">
 
-      <Dropzone onFiles={handleFiles} />
-      <form action="https://www.paypal.com/donate" method="post" target="_top">
-<input type="hidden" name="hosted_button_id" value="PC59QRDDGWREY" />
-<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
-<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1" />
-</form>
+      <Onboarding />
 
-      {isDone && <BigStat savedPercent={savedPercent} />}
+      <h1 className="title">Web Image Optimizer</h1>
+      <ThemeToggle />
 
-      <ProgressBar progress={progress} />
+      {/* HERO SECTION */}
+      <div className="panel hero">
 
-      <TimeLeft seconds={timeLeft} />
+        <QualityControl value={quality} onChange={setQuality} />
 
-      <ExportButton processed={processed} files={files} />
+        <Dropzone onFiles={handleFiles} />
 
-      <FileList files={files} processed={processed} />
-      
+        <ProgressBar progress={progress} />
 
+        <TimeLeft seconds={timeLeft} />
 
-      <a
-        href="/privacy"
-        style={{
-          fontSize: 12,
-          color: "gray",
-          marginTop: 20,
-          display: "inline-block",
-        }}
-      >
+      </div>
+
+      {/* RESULTS SECTION */}
+      {isDone && (
+        <div className="panel results">
+          <BigStat savedPercent={savedPercent} />
+
+          <ExportButton
+            processed={processed}
+            files={files}
+          />
+        </div>
+      )}
+
+      {/* FILES SECTION */}
+      <div className="panel">
+        <FileList files={files} processed={processed} />
+      </div>
+
+      <About />
+
+      <a href="/privacy" className="link">
         Privacy Policy
-      </a>
+      </a><br/><br/>
+      &#169;Andrei Holerga 2026
     </div>
-  );
+  </div>
+);
 }

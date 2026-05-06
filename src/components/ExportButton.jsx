@@ -34,59 +34,21 @@ export default function ExportButton({ processed, files }) {
 
   const disabled = !hasFiles || loading;
 
-  return (
-    <div style={styles.wrapper}>
-      <button
-        onClick={downloadZip}
-        disabled={disabled}
-        style={{
-          ...styles.button,
-          ...(disabled ? styles.disabled : {}),
-        }}
-      >
-        {loading ? "Packaging..." : "Download ZIP"}
-      </button>
+ return (
+  <div className="export">
+    <button
+      onClick={downloadZip}
+      disabled={disabled}
+      className={`export-btn ${disabled ? "disabled" : ""}`}
+    >
+      {loading ? "Packaging..." : "Download ZIP"}
+    </button>
 
-      <div style={styles.subtext}>
-        {hasFiles
-          ? `${files.length} files ready`
-          : "No files uploaded"}
-      </div>
+    <div className="export-subtext">
+      {hasFiles
+        ? `${files.length} files ready`
+        : "No files uploaded"}
     </div>
-  );
-}
-
-const styles = {
-  wrapper: {
-    marginTop: "20px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: "6px",
-    fontFamily: "sans-serif",
-  },
-
-  button: {
-    padding: "10px 16px",
-    background: "#111",
-    color: "white",
-    border: "1px solid #333",
-    borderRadius: "8px",
-    cursor: "pointer",
-    fontSize: "13px",
-    fontWeight: "600",
-    transition: "all 0.2s ease",
-  },
-
-  disabled: {
-    opacity: 0.4,
-    cursor: "not-allowed",
-    background: "#1a1a1a",
-    border: "1px solid #222",
-  },
-
-  subtext: {
-    fontSize: "11px",
-    opacity: 0.6,
-  },
+  </div>
+);
 };

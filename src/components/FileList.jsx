@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 
 // -----------------------------
-// BUILD TREE (FIXED)
+// BUILD TREE
 // -----------------------------
 function buildTree(files) {
   const root = {};
@@ -21,7 +21,6 @@ function buildTree(files) {
           : {};
       }
 
-      // prevent file/folder conflict
       if (!isFile && current[part].__file) {
         current[part] = {};
       }
@@ -34,7 +33,7 @@ function buildTree(files) {
 }
 
 // -----------------------------
-// SORT (folders first)
+// SORT
 // -----------------------------
 function sortNodes(node) {
   const entries = Object.entries(node);
@@ -59,27 +58,24 @@ function sortNodes(node) {
 function TreeNode({ node, name, processed, depth = 0 }) {
   const isFile = node.__file;
 
-  // root open, subfolders closed
   const [open, setOpen] = useState(depth === 0);
 
-  // ---------------- FILE ----------------
+  // FILE
   if (isFile) {
     const file = node.__file;
     const result = processed[node.__index];
 
     return (
-      <div style={styles.fileRow}>
-        <span style={styles.left}>
-          📄 {file.name}
-        </span>
+      <div className="file-row">
+        <span className="file-left">📄 {file.name}</span>
 
-        <span style={styles.right}>
+        <span className="file-right">
           {(file.size / 1024).toFixed(1)} KB
 
           {result && (
             <>
               {" → "}
-              <span style={styles.green}>
+              <span className="file-green">
                 {(result.newSize / 1024).toFixed(1)} KB
               </span>
             </>
@@ -89,18 +85,18 @@ function TreeNode({ node, name, processed, depth = 0 }) {
     );
   }
 
-  // ---------------- FOLDER ----------------
+  // FOLDER
   return (
-    <div style={styles.folder}>
+    <div className="folder">
       <div
-        style={styles.folderName}
+        className="folder-name"
         onClick={() => setOpen(!open)}
       >
         {open ? "📂" : "📁"} {name}
       </div>
 
       {open && (
-        <div style={styles.children}>
+        <div className="folder-children">
           {sortNodes(node).map(([childName, childNode]) => (
             <TreeNode
               key={childName}
@@ -117,14 +113,14 @@ function TreeNode({ node, name, processed, depth = 0 }) {
 }
 
 // -----------------------------
-// MAIN COMPONENT
+// MAIN
 // -----------------------------
 export default function FileList({ files, processed }) {
   const tree = useMemo(() => buildTree(files), [files]);
 
   return (
-    <div style={styles.container}>
-      <h3 style={styles.title}>
+    <div className="filelist">
+      <h3 className="filelist-title">
         File Tree ({files.length})
       </h3>
 
@@ -140,61 +136,3 @@ export default function FileList({ files, processed }) {
     </div>
   );
 }
-
-// -----------------------------
-// STYLES
-// -----------------------------
-const styles = {
-  container: {
-    marginTop: "20px",
-    fontFamily: "sans-serif",
-    fontSize: "13px",
-    textAlign: "left",
-  },
-
-  title: {
-    marginBottom: "10px",
-  },
-
-  folder: {
-    marginTop: "6px",
-  },
-
-  folderName: {
-    fontWeight: "bold",
-    marginBottom: "4px",
-    cursor: "pointer",
-    userSelect: "none",
-  },
-
-  children: {
-    marginLeft: "18px",
-    borderLeft: "1px solid #333",
-    paddingLeft: "10px",
-  },
-
-  fileRow: {
-    display: "flex",
-    justifyContent: "space-between",
-    padding: "2px 0",
-    fontSize: "12px",
-    width: "100%",
-  },
-
-  left: {
-    maxWidth: "65%",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-
-  right: {
-    opacity: 0.7,
-    fontSize: "11px",
-    whiteSpace: "nowrap",
-  },
-
-  green: {
-    color: "#4ade80",
-  },
-};

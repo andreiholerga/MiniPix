@@ -10,6 +10,7 @@ export class WorkerPool {
     this.taskId = 0;
 
     this.workers = [];
+    this.processing = false; // 🧠 prevents re-entrant loops
 
     for (let i = 0; i < size; i++) {
       const worker = new ImageWorker();
@@ -25,7 +26,10 @@ export class WorkerPool {
         if (error) task.reject(error);
         else task.resolve(result);
 
+        // return worker to pool
         this.idleWorkers.push(worker);
+
+        // schedule next batch safely
         this.processQueue();
       };
 
@@ -50,6 +54,11 @@ export class WorkerPool {
   }
 
   processQueue() {
+    // 🧠 prevent recursive scheduling storms
+    if (this.processing) return;
+
+    this.processing = true;
+
     while (this.queue.length > 0 && this.idleWorkers.length > 0) {
       const worker = this.idleWorkers.shift();
       const task = this.queue.shift();
@@ -60,9 +69,15 @@ export class WorkerPool {
         quality: task.quality,
       });
     }
+
+    this.processing = false;
   }
 
   terminate() {
     this.workers.forEach((w) => w.terminate());
+
+    this.queue = [];
+    this.tasks.clear();
+    this.idleWorkers = [];
   }
 }

@@ -9,17 +9,8 @@ export default function TimeLeft({ seconds }) {
   };
 
   return (
-    <div style={styles.box}>
-      ⏳ Time left: {format(seconds)}
+    <div className="time-left">
+      ⏳ Time left: <span className="time-value">{format(seconds)}</span>
     </div>
   );
 }
-
-const styles = {
-  box: {
-    marginTop: "8px",
-    fontSize: "12px",
-    opacity: 0.7,
-    fontFamily: "sans-serif",
-  },
-};
